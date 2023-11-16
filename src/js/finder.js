@@ -72,6 +72,9 @@ class Finder {
     if (field.column < 10) edgeFields.push(mesh[field.row][field.column + 1]);
 
     if (mesh[field.row][field.column]) {
+      if ((edgeFields[0] && edgeFields[1]) || (edgeFields[2] && edgeFields[3]))
+        return;
+
       mesh[field.row][field.column] = false;
       clickedField.classList.remove("selected");
     } else {
