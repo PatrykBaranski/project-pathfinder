@@ -1,0 +1,44 @@
+.info-container {
+  margin-bottom: 64px;
+
+  p {
+    font-size: 18px;
+    font-weight: $font-light;
+    letter-spacing: 7px;
+  }
+}
+
+.info-1 {
+  position: relative;
+
+  img {
+    aspect-ratio: 16/9;
+    max-height: 300px;
+  }
+
+  .info-text {
+    left: 50%;
+    transform: translateX(-50%);
+    position: absolute;
+    z-index: 9;
+    bottom: 40px;
+  }
+}
+
+.info-2 {
+  position: relative;
+  height: 500px;
+
+  img {
+    float: right;
+    aspect-ratio: 16/9;
+    max-height: 100%;
+    text-align: right;
+  }
+
+  .info-text {
+    position: absolute;
+    top: 40px;
+    left: 100px;
+  }
+}

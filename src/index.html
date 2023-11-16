@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Pathfinder</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Satisfy&family=Source+Sans+3:wght@400;600;700;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script type="module" src="./js/script.js"></script>
+</head>
+
+<body>
+  <div class="modal-background"></div>
+  <div class="modal">
+    <h3>SUMMARY</h3>
+    <ul class="summary-list">
+      <li class="full"><span class="title">FULL ROUTE:</span> <span class="number">12</span> FIELDS</li>
+      <li class="longest"><span class="title">THE LONGEST ROUTE:</span> <span class="number">10</span> FIELDS</li>
+      <li class="shortest"><span class="title">THE SHORTEST ROUTE:</span> <span class="number">6</span> FIELDS</li>
+    </ul>
+    <button type="button" class="close-modal">X</button>
+  </div>
+  <nav class="main-nav">
+    <ul>
+      <li><a href="#about">About</a></li>
+      <li><a href="#finder">Finder</a></li>
+    </ul>
+  </nav>
+  <header>
+    <h1>Pathfinder</h1>
+    <p>for travelers</p>
+  </header>
+  <section class="page about">
+    <div class="info-container info-1">
+      <img src="../images/1.jpg" alt="image showing two girls on desert">
+      <div class="info-text">
+        <h2>Plan your journeys</h2>
+        <p>Pick attractions and book hotels</p>
+      </div>
+    </div>
+    <div class="info-container info-2">
+      <div class="info-text">
+        <h2>Minimalize Boredom</h2>
+        <p>Pick routes that are short and attractive</p>
+      </div>
+      <img src="../images/2.jpg" alt="image showing two girls on desert">
+    </div>
+  </section>
+  <section class="page finder active">
+    <h2 class="step-title">Draw routes</h2>
+    <div class="drawing-container"></div>
+    <button type="button" class="btnChangeStep">Compute</button>
+  </section>
+  <footer>All rights reserved</footer>
+</body>
+
+</html>

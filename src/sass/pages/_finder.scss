@@ -1,0 +1,45 @@
+.drawing-container {
+  margin: 54px auto;
+  width: 500px;
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+}
+
+.field {
+  border: 1px solid $color-light;
+  height: 50px;
+}
+
+.field:hover {
+  cursor: pointer;
+  background-color: $color-main;
+  opacity: 0.7;
+}
+
+.field.selected {
+  background-color: $color-main;
+}
+
+.field.success {
+  background-color: $color-success;
+}
+
+.field.possible {
+  background-color: $color-possible;
+  opacity: 0.7;
+}
+
+.btnChangeStep {
+  margin: 0 auto;
+  padding: 8px 48px;
+  background-color: $color-main;
+  color: $color-light;
+  border: none;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.btnChangeStep:hover {
+  cursor: pointer;
+}

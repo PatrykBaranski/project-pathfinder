@@ -1,0 +1,111 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  position: relative;
+  max-width: 100%;
+  overflow-x: hidden;
+  font-family: $font-text;
+  color: $color-light;
+  background-color: $color-dark;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+    url("../images/background.jpg");
+  background-size: contain;
+  background-repeat: no-repeat;
+  height: 100vh;
+}
+
+.page {
+  display: none;
+  position: relative;
+  max-width: 1400px;
+  margin: 0 auto 224px;
+}
+
+.page.active {
+  display: block;
+}
+
+ul {
+  list-style: none;
+}
+
+a:link,
+a:visited {
+  color: $color-light;
+  text-decoration: none;
+}
+
+.main-nav {
+  margin-top: 48px;
+  font-weight: $font-normal;
+  text-transform: uppercase;
+
+  ul {
+    display: flex;
+    justify-content: center;
+    gap: 108px;
+
+    a {
+      position: relative;
+    }
+
+    a::after {
+      content: "";
+      position: absolute;
+      height: 3px;
+      width: 100%;
+      background-color: $color-main;
+      left: 0px;
+      bottom: -5px;
+      transform: scaleX(0);
+      transform-origin: bottom left;
+      transition: all 0.3s ease-in;
+    }
+
+    a:hover::after {
+      transform: scaleX(100%);
+    }
+
+    a.active {
+      color: $color-main;
+    }
+
+    a.active::after {
+      transform: scaleX(100%);
+    }
+  }
+}
+
+header {
+  max-width: 762px;
+  margin: 96px auto 148px;
+  text-transform: uppercase;
+
+  h1 {
+    text-align: right;
+    margin: 0;
+  }
+
+  p {
+    margin: 0;
+    text-align: right;
+    font-size: 18px;
+    letter-spacing: 5px;
+    font-weight: $font-semibold;
+  }
+}
+
+footer {
+  margin-top: 108px;
+  font-weight: $font-light;
+  letter-spacing: 2px;
+  width: 100%;
+  text-align: center;
+}
