@@ -10,23 +10,24 @@ class Finder {
     this.setStep(this.finderStep.begin);
     this.initFieldClick();
     this.initBtn();
+    this.initRandomRoutesButton();
   }
 
   generateSteps() {
     this.finderStep = {
       begin: {
         step: "begin",
-        btnText: "FINISH DRAWING",
+        btnText: "Finish drawing",
         headerText: "DRAW ROUTES",
       },
       compute: {
         step: "compute",
-        btnText: "COMPUTE",
+        btnText: "Compute",
         headerText: "PICK START AND FINISH",
       },
       replay: {
         step: "replay",
-        btnText: "START AGAIN",
+        btnText: "Start again",
         headerText: "THE BEST ROUTE IS...",
       },
     };
@@ -36,6 +37,7 @@ class Finder {
     this.drawingContainer = document.querySelector(".drawing-container");
     this.stepTitle = document.querySelector(".step-title");
     this.btnStep = document.querySelector(".btnChangeStep");
+    this.btnRandomRoutes = document.querySelector(".btnRandomRoutes");
   }
 
   generateMesh() {
@@ -58,7 +60,7 @@ class Finder {
   }
 
   toggleField(clickedField) {
-    const { mesh } = this;
+    const { mesh, meshSize } = this;
 
     const field = {
       row: +clickedField.dataset.row,
@@ -67,13 +69,21 @@ class Finder {
 
     const edgeFields = [];
     if (field.row > 1) edgeFields.push(mesh[field.row - 1][field.column]);
-    if (field.row < 10) edgeFields.push(mesh[field.row + 1][field.column]);
+    if (field.row < meshSize)
+      edgeFields.push(mesh[field.row + 1][field.column]);
     if (field.column > 1) edgeFields.push(mesh[field.row][field.column - 1]);
-    if (field.column < 10) edgeFields.push(mesh[field.row][field.column + 1]);
+    if (field.column < meshSize)
+      edgeFields.push(mesh[field.row][field.column + 1]);
 
     if (mesh[field.row][field.column]) {
-      if ((edgeFields[0] && edgeFields[1]) || (edgeFields[2] && edgeFields[3]))
+      // maybe some kind of dfs would be better here (?)
+      if (
+        (edgeFields[0] && edgeFields[1] && !edgeFields[2] && !edgeFields[3]) ||
+        (edgeFields[2] && edgeFields[3] && !edgeFields[0] && !edgeFields[1]) ||
+        (edgeFields[0] && edgeFields[1] && edgeFields[2] && edgeFields[3])
+      ) {
         return;
+      }
 
       mesh[field.row][field.column] = false;
       clickedField.classList.remove("selected");
@@ -238,8 +248,15 @@ class Finder {
       shortestRoute.forEach(({ row, column }) => {
         this.selectFieldElem(row, column).classList.add("success");
       });
+      longestRoute.forEach(({ row, column }) => {
+        this.selectFieldElem(row, column).classList.add("longest");
+        this.selectFieldElem(row, column).textContent = "L";
+      });
+
+      return true;
     } else {
       alert("I could not find any path to go :(");
+      return false;
     }
   }
 
@@ -266,13 +283,20 @@ class Finder {
         if (!("start" in startAndEndCords) || !("end" in startAndEndCords)) {
           alert("Pls chose a start and finish for route");
         } else {
-          this.computeBestRoute();
+          const computed = this.computeBestRoute();
           this.setStep(finderStep.replay);
-          new Modal([
-            this.fullMeshLength,
-            this.shortestRouteLength,
-            this.longestRouteLength,
-          ]);
+
+          if (computed) {
+            document.body.scrollTo(0, 0);
+            document.body.style.overflow = "hidden";
+
+            new Modal([
+              this.fullMeshLength,
+              this.shortestRouteLength,
+              this.longestRouteLength,
+            ]);
+          }
+
           return;
         }
       }
@@ -281,6 +305,12 @@ class Finder {
         this.setStep(finderStep.begin);
         return;
       }
+    });
+  }
+
+  initRandomRoutesButton() {
+    this.btnRandomRoutes.addEventListener("click", () => {
+      this.generateRandomRoutes();
     });
   }
 
@@ -300,6 +330,56 @@ class Finder {
     return document.querySelector(
       `[data-row="${row}"][data-column="${column}"]`
     );
+  }
+
+  generateRandomRoutes() {
+    const { mesh, meshSize, finderStep } = this;
+
+    this.drawingContainer
+      .querySelectorAll(".field.selected, .field.success, .field.longest")
+      .forEach((field) => {
+        field.classList.remove("selected", "success", "longest");
+        field.textContent = "";
+      });
+
+    for (let i = 1; i <= meshSize; i++) {
+      for (let j = 1; j <= meshSize; j++) {
+        mesh[i][j] = false;
+      }
+    }
+
+    this.setStep(finderStep.begin);
+
+    for (let i = 0; i < meshSize * 5; i++) {
+      let randomRow, randomColumn;
+
+      do {
+        randomRow = Math.floor(Math.random() * meshSize) + 1;
+        randomColumn = Math.floor(Math.random() * meshSize) + 1;
+      } while (!this.isValidRandomRoute(randomRow, randomColumn));
+
+      mesh[randomRow][randomColumn] = true;
+      this.selectFieldElem(randomRow, randomColumn).classList.add("selected");
+    }
+  }
+
+  isValidRandomRoute(row, column) {
+    const { mesh, flatMeshToSingleArray } = this;
+
+    if (flatMeshToSingleArray(mesh).includes(true)) {
+      const edgeFields = [
+        mesh[row - 1]?.[column],
+        mesh[row + 1]?.[column],
+        mesh[row]?.[column - 1],
+        mesh[row]?.[column + 1],
+      ];
+
+      if (!edgeFields.includes(true)) {
+        return false;
+      }
+    }
+
+    return true;
   }
 }
 export default Finder;
