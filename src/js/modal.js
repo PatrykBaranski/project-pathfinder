@@ -12,7 +12,7 @@ class Modal {
     this.modal = document.querySelector(".modal");
     this.fullElem = document.querySelector(".full");
     this.longestElem = document.querySelector(".longest");
-    this.shortestElem = document.querySelector(".shortest");
+    this.shortestElem = document.body.querySelector(".shortest");
     this.closeBtn = document.querySelector(".close-modal");
   }
 
@@ -30,10 +30,13 @@ class Modal {
 
   initCloseModal() {
     const { closeBtn, modalBackground, modal } = this;
+
     [closeBtn, modalBackground].forEach((elem) =>
       elem.addEventListener("click", () => {
         modalBackground.classList.remove("active");
         modal.classList.remove("active");
+
+        document.body.style.overflow = "auto";
       })
     );
   }

@@ -1,64 +1,13 @@
-import Modal from "./modal.js";
+import FinderBase from "./finder-base.js";
+import { flatMeshToSingleArray } from "./utils.js";
 
-class Finder {
+class Finder extends FinderBase {
   constructor(meshSize) {
-    this.meshSize = meshSize;
-    this.startAndEndCords = {};
-    this.generateHTMLElements();
-    this.generateMesh();
-    this.generateSteps();
-    this.setStep(this.finderStep.begin);
-    this.initFieldClick();
-    this.initBtn();
-  }
-
-  generateSteps() {
-    this.finderStep = {
-      begin: {
-        step: "begin",
-        btnText: "FINISH DRAWING",
-        headerText: "DRAW ROUTES",
-      },
-      compute: {
-        step: "compute",
-        btnText: "COMPUTE",
-        headerText: "PICK START AND FINISH",
-      },
-      replay: {
-        step: "replay",
-        btnText: "START AGAIN",
-        headerText: "THE BEST ROUTE IS...",
-      },
-    };
-  }
-
-  generateHTMLElements() {
-    this.drawingContainer = document.querySelector(".drawing-container");
-    this.stepTitle = document.querySelector(".step-title");
-    this.btnStep = document.querySelector(".btnChangeStep");
-  }
-
-  generateMesh() {
-    const { drawingContainer, meshSize } = this;
-    this.mesh = {};
-
-    for (let i = 1; i <= meshSize; i++) {
-      this.mesh[i] = {};
-      for (let j = 1; j <= meshSize; j++) {
-        this.mesh[i][j] = false;
-        drawingContainer.innerHTML += `<div class="field" data-row="${i}" data-column="${j}"></div>`;
-      }
-    }
-  }
-
-  flatMeshToSingleArray(mesh) {
-    return Object.values(mesh)
-      .map((e) => Object.values(e))
-      .flat();
+    super(meshSize);
   }
 
   toggleField(clickedField) {
-    const { mesh } = this;
+    const { mesh, meshSize } = this;
 
     const field = {
       row: +clickedField.dataset.row,
@@ -67,18 +16,26 @@ class Finder {
 
     const edgeFields = [];
     if (field.row > 1) edgeFields.push(mesh[field.row - 1][field.column]);
-    if (field.row < 10) edgeFields.push(mesh[field.row + 1][field.column]);
+    if (field.row < meshSize)
+      edgeFields.push(mesh[field.row + 1][field.column]);
     if (field.column > 1) edgeFields.push(mesh[field.row][field.column - 1]);
-    if (field.column < 10) edgeFields.push(mesh[field.row][field.column + 1]);
+    if (field.column < meshSize)
+      edgeFields.push(mesh[field.row][field.column + 1]);
 
     if (mesh[field.row][field.column]) {
-      if ((edgeFields[0] && edgeFields[1]) || (edgeFields[2] && edgeFields[3]))
+      // maybe some kind of dfs would be better here (?)
+      if (
+        (edgeFields[0] && edgeFields[1] && !edgeFields[2] && !edgeFields[3]) ||
+        (edgeFields[2] && edgeFields[3] && !edgeFields[0] && !edgeFields[1]) ||
+        (edgeFields[0] && edgeFields[1] && edgeFields[2] && edgeFields[3])
+      ) {
         return;
+      }
 
       mesh[field.row][field.column] = false;
       clickedField.classList.remove("selected");
     } else {
-      if (this.flatMeshToSingleArray(mesh).includes(true)) {
+      if (flatMeshToSingleArray(mesh).includes(true)) {
         if (!edgeFields.includes(true)) {
           alert(
             "A new field should touch at least one that is already selected!"
@@ -89,6 +46,12 @@ class Finder {
       mesh[field.row][field.column] = true;
       clickedField.classList.add("selected");
     }
+  }
+
+  selectFieldElem(row, column) {
+    return document.querySelector(
+      `[data-row="${row}"][data-column="${column}"]`
+    );
   }
 
   choseStartAndFinish(clickedField) {
@@ -157,21 +120,8 @@ class Finder {
     }
   }
 
-  initFieldClick() {
-    this.drawingContainer.addEventListener("click", (e) => {
-      const { currentStep, finderStep } = this;
-      const clickedField = e.target;
-
-      if (!clickedField.classList.contains("field")) return;
-
-      if (currentStep === finderStep.begin.step) this.toggleField(clickedField);
-      if (currentStep === finderStep.compute.step)
-        this.choseStartAndFinish(clickedField);
-    });
-  }
-
   computeBestRoute() {
-    const { startAndEndCords, mesh, meshSize } = this;
+    const { startAndEndCords, mesh, meshSize, directions } = this;
     const { start: startCords, end: endCords } = startAndEndCords;
 
     const result = [];
@@ -191,13 +141,6 @@ class Finder {
         result.push(path);
         continue;
       }
-
-      const directions = [
-        [-1, 0],
-        [1, 0],
-        [0, -1],
-        [0, 1],
-      ];
 
       for (const [x, y] of directions) {
         const r = row + x;
@@ -228,7 +171,7 @@ class Finder {
         a.length < b.length ? a : b
       );
 
-      this.fullMeshLength = this.flatMeshToSingleArray(mesh).filter(
+      this.fullMeshLength = flatMeshToSingleArray(mesh).filter(
         (field) => field === true
       ).length;
 
@@ -238,68 +181,22 @@ class Finder {
       shortestRoute.forEach(({ row, column }) => {
         this.selectFieldElem(row, column).classList.add("success");
       });
+      longestRoute.forEach(({ row, column }) => {
+        this.selectFieldElem(row, column).classList.add("longest");
+        this.selectFieldElem(row, column).textContent = "L";
+      });
+
+      return true;
     } else {
       alert("I could not find any path to go :(");
+      return false;
     }
-  }
-
-  initBtn() {
-    this.btnStep.addEventListener("click", () => {
-      const {
-        finderStep,
-        currentStep,
-        startAndEndCords,
-        mesh,
-        flatMeshToSingleArray,
-      } = this;
-
-      if (currentStep === finderStep.begin.step) {
-        const flatMesh = flatMeshToSingleArray(mesh);
-        if (flatMesh.filter((field) => field === true).length < 2) {
-          alert("Pleas select at least 2 fields");
-          return;
-        }
-        this.setStep(finderStep.compute);
-        return;
-      }
-      if (currentStep === finderStep.compute.step) {
-        if (!("start" in startAndEndCords) || !("end" in startAndEndCords)) {
-          alert("Pls chose a start and finish for route");
-        } else {
-          this.computeBestRoute();
-          this.setStep(finderStep.replay);
-          new Modal([
-            this.fullMeshLength,
-            this.shortestRouteLength,
-            this.longestRouteLength,
-          ]);
-          return;
-        }
-      }
-      if (currentStep === finderStep.replay.step) {
-        this.resetFinder();
-        this.setStep(finderStep.begin);
-        return;
-      }
-    });
   }
 
   resetFinder() {
     this.startAndEndCords = {};
     this.drawingContainer.innerHTML = "";
     this.generateMesh();
-  }
-
-  setStep({ step, headerText, btnText }) {
-    this.stepTitle.textContent = headerText;
-    this.btnStep.textContent = btnText;
-    this.currentStep = step;
-  }
-
-  selectFieldElem(row, column) {
-    return document.querySelector(
-      `[data-row="${row}"][data-column="${column}"]`
-    );
   }
 }
 export default Finder;

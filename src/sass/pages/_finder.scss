@@ -24,22 +24,30 @@
   background-color: $color-success;
 }
 
-.field.possible {
-  background-color: $color-possible;
+.field.longest {
   opacity: 0.7;
 }
 
-.btnChangeStep {
-  margin: 0 auto;
-  padding: 8px 48px;
+.field.possible {
+  opacity: 0.1;
+}
+
+.btn-container {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+}
+
+.btnChangeStep,
+.btnRandomRoutes {
+  padding: 8px 0;
+  width: 200px;
   background-color: $color-main;
   color: $color-light;
   border: none;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
+  cursor: pointer;
 }
 
-.btnChangeStep:hover {
-  cursor: pointer;
+.btnRandomRoutes {
+  background-color: blue;
 }
